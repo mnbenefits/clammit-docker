@@ -10,13 +10,17 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates && \
     addgroup -S clam && adduser -u 100 -S -G clam clam
 
-WORKDIR /home/clam
-
-COPY launcher.sh /
+RUN mkdir -m 777 -p /home/clam && chmod 777 /home/clam
 
 USER clam
+
+WORKDIR /home/clam
+
+COPY --chmod=777 --chown=clam:clam launcher.sh /home/clam
+
 
 COPY --from=build-env --chown=clam:clam /app/bin/clammit .
 COPY --from=build-env --chown=clam:clam /app/testfiles ./testfiles
 
-ENTRYPOINT ["sh", "/launcher.sh", "/home/clam/clammit.cfg", "/home/clam/clammit", "-config", "clammit.cfg"]
+ENTRYPOINT ["sh", "/home/clam/launcher.sh", "/home/clam/clammit.cfg", "/home/clam/clammit", "-config", "clammit.cfg"]
+
